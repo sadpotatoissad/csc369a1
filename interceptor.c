@@ -286,7 +286,7 @@ asmlinkage long interceptor(struct pt_regs reg) {
     if ((!cur_monitored && monitored == 2)||(cur_monitored && monitored == 1)){
         log_message(current->pid, sys_call_num, reg.bx, reg.cx, reg.dx, reg.si, reg.di, reg.bp);
     }
-    //call original syscall
+    //call original system call
     ret = table[sys_call_num].f(reg);
     return ret;
 
@@ -344,13 +344,68 @@ asmlinkage long interceptor(struct pt_regs reg) {
  *   you might be holding, before you exit the function (including error cases!).
  */
 asmlinkage long my_syscall(int cmd, int syscall, int pid) {
+    //check to see if syscall is valid
+    if ((syscall > NR_syscalls)&&(syscall > 0)) {
+        return -EINVAL;
+    }
+    else if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING))&&((pid < 0)||(pid_task(find_vpid(pid),PIDTYPE_PID) == NULL))) {
+        return -EINVAL;
+    }
+    //check for correct permissions
+    else if (((cmd == REQUEST_SYSCALL_INTERCEPT)||(cmd == REQUEST_SYSCALL_RELEASE)) && (current_uid() != 0)) {
+        return -EPERM;
+    }
+    else if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
+        if (((pid == 0) && (current_uid() != 0)) || (check_pid_from_list(current->pid, pid) != 0)) {
+            return -EPERM;
+        }
+    }
+    //check for correct context of commands
+    else if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].monitored == 0)) {
+        return -EINVAL;
+    }
+    else if ((cmd == REQUEST_STOP_MONITORING) && (check_pid_monitored(syscall, pid) == 0)){
+        return -EINVAL;
+    }
+    else if ((cmd == REQUEST_SYSCALL_INTERCEPT) && (table[syscall].monitored == 1)) {
+        return -EBUSY;
+    }
+    else if ((cmd == REQUEST_START_MONITORING) && (check_pid_monitored(syscall, pid) == 1)) {
+        return -EBUSY;
+    }
+    //Need to add functionality for this part when adding stuff
+    //If a pid cannot be added to a monitored list, due to no memory being available,
+    //an -ENOMEM error code should be returned
+    /*
+    - REQUEST_SYSCALL_INTERCEPT to intercept the 'syscall' argument
+ *      - REQUEST_SYSCALL_RELEASE to de-intercept the 'syscall' argument
+ *      - REQUEST_START_MONITORING to start monitoring for 'pid' whenever it issues 'syscall'
+ *      - REQUEST_STOP_MONITORING to stop monitoring for 'pid'
+ *      For the last two, if pid=0, that translates to "all pids".
+     */
+    //intercept
+    //store orig
+    //double check syntax for function ptrs
+    if (cmd == REQUEST_SYSCALL_INTERCEPT){
+        table[syscall].intercepted = 1;
+        table[syscall].f = (unsigned long) sys_call_table[syscall];
+        set_addr_rw((unsigned long)sys_call_table);
+        sys_call_table[syscall] = (void*) interceptor;
+        set_addr_ro((unsigned long)sys_call_table);
+    }
 
+    //de-intercept
+    if (cmd = REQUEST_SYSCALL_RELEASE){
+        set_addr_rw((unsigned long) sys_call_table);
+        sys_call_table[syscall] = (unsigned long) table[syscall].f;
+        set_addr_ro((unsigned long) sys_call_table);
+        table[syscall].intercepted = 0;
+        destroy_list(syscall);
+        //init the head for future usage
+        INIT_LIST_HEAD (&some_list);
 
+    }
 
-
-
-
-	return 0;
 }
 
 /**
