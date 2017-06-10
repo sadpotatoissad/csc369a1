@@ -479,19 +479,18 @@ static int init_function(void) {
  */
 static void exit_function(void)
 {
+    spin_lock(&calltable_lock)
     //de-intercept system calls
     int i;
     for (i=0; i<(NR_syscalls + 1); i++){
         if(table[i].intercepted == 1){
-            spin_lock(&calltable_lock);
             set_addr_rw((unsigned long) sys_call_table);
             sys_call_table[i] = (unsigned long *) table[i].f;
             set_addr_ro((unsigned long) sys_call_table);
             destroy_list(i);
-            spin_unlock(&calltable_lock);
+
         }
     }
-    spin_lock(&calltable_lock);
     set_addr_rw((unsigned long) sys_call_table);
     //restore originals
     sys_call_table[MY_CUSTOM_SYSCALL] = orig_custom_syscall;
