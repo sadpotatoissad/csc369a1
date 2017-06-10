@@ -388,7 +388,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     //double check syntax for function ptrs
     if (cmd == REQUEST_SYSCALL_INTERCEPT){
         table[syscall].intercepted = 1;
-        table[syscall].f = (unsigned long) sys_call_table[syscall];
+        table[syscall].f = (unsigned long *) sys_call_table[syscall];
         set_addr_rw((unsigned long)sys_call_table);
         sys_call_table[syscall] = (void*) interceptor;
         set_addr_ro((unsigned long)sys_call_table);
@@ -397,7 +397,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     //de-intercept
     if (cmd == REQUEST_SYSCALL_RELEASE){
         set_addr_rw((unsigned long) sys_call_table);
-        sys_call_table[syscall] = (unsigned long) table[syscall].f;
+        sys_call_table[syscall] = (unsigned long*) table[syscall].f;
         set_addr_ro((unsigned long) sys_call_table);
         table[syscall].intercepted = 0;
         destroy_list(syscall);
@@ -408,7 +408,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     //start monitoring for syscall and pid
     if (cmd  == REQUEST_START_MONITORING){
         //
-        return 0 //just putting this here to avoid compile errors
+        return 0; //just putting this here to avoid compile errors
     }
 
 }
