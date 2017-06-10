@@ -479,7 +479,7 @@ static int init_function(void) {
  */
 static void exit_function(void)
 {
-    spin_lock(&calltable_lock)
+    spin_lock(&calltable_lock);
     //de-intercept system calls
     int i;
     for (i=0; i<(NR_syscalls + 1); i++){
