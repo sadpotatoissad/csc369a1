@@ -448,7 +448,6 @@ static int init_function(void) {
 
     //initializations
     int i;
-    i = 0;
     for(i = 0; i < (NR_syscalls+1); i++){
         table[i].f = sys_call_table[i];
         table[i].intercepted = 0;
@@ -476,7 +475,7 @@ static void exit_function(void)
     for (i=0; i<(NR_syscalls + 1); i++){
         if(table[i].intercepted == 1){
             set_addr_rw((unsigned long) sys_call_table);
-            sys_call_table[syscall] = (unsigned long *) table[i].f;
+            sys_call_table[i] = (unsigned long *) table[i].f;
             set_addr_ro((unsigned long) sys_call_table);
             destroy_list(i);
         }
