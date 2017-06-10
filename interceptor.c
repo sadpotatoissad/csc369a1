@@ -402,7 +402,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         table[syscall].intercepted = 0;
         destroy_list(syscall);
         //init the head for future usage
-        INIT_LIST_HEAD (&some_list);
+        INIT_LIST_HEAD(&table[syscall].my_list);
 
     }
 
