@@ -345,7 +345,7 @@ asmlinkage long interceptor(struct pt_regs reg) {
  */
 asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     //check to see if syscall is valid
-    if ((syscall > NR_syscalls)&&(syscall > 0)) {
+    if ((syscall > NR_syscalls)||(syscall <= 0)) {
         return -EINVAL;
     }
     else if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING))&&((pid < 0)||(pid_task(find_vpid(pid),PIDTYPE_PID) == NULL))) {
