@@ -442,11 +442,11 @@ long (*orig_custom_syscall)(void);
  */
 static int init_function(void) {
     int i;
-
+    spin_lock(&calltable_lock);
     //store orig
     orig_custom_syscall = sys_call_table[0];
     //switch
-    spin_lock(&calltable_lock);
+
     set_addr_rw((unsigned long) sys_call_table);
     sys_call_table[MY_CUSTOM_SYSCALL] = my_syscall;
     //store orig
