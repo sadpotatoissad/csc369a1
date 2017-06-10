@@ -463,6 +463,7 @@ static int init_function(void) {
         table[i].f = sys_call_table[i];
         table[i].intercepted = 0;
         table[i].listcount = 0;
+        table[i].monitored = 0;
         INIT_LIST_HEAD(&(table[i].my_list));
     }
     spin_unlock(&calltable_lock);
