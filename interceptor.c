@@ -412,10 +412,10 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 
     }
     //start monitoring for syscall and pid
-    else if (cmd  == REQUEST_START_MONITORING){
+    //else if (cmd  == REQUEST_START_MONITORING){
         //
-        return 0; //just putting this here to avoid compile errors
-    }
+    //    return 0; //just putting this here to avoid compile errors
+    //}
 
 }
 
