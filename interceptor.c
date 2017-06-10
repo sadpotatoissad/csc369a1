@@ -280,11 +280,11 @@ asmlinkage long interceptor(struct pt_regs reg) {
     //check to see if syscall is monitored for current pid
     int cur_monitored, monitored, sys_call_num, ret;
     sys_call_num = reg.ax;
-    cur_monitored = check_pid_monitored(current->pid);
+    cur_monitored = check_pid_monitored(sys_call_num, current->pid);
     monitored = table[sys_call_num].monitored;
     //NEED TO DOUBLE CHECK for second param
     if ((!cur_monitored && monitored == 2)||(cur_monitored && monitored == 1)){
-        log_message(current->pid, sys_call_num, reg.bx, reg.cx, reg.dx, reg.si, reg.di, reg.bp);
+        log_message(current->pid, (unsigned long) sys_call_num, reg.bx, reg.cx, reg.dx, reg.si, reg.di, reg.bp);
     }
     //call original system call
     ret = table[sys_call_num].f(reg);
@@ -355,7 +355,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     else if (((cmd == REQUEST_SYSCALL_INTERCEPT)||(cmd == REQUEST_SYSCALL_RELEASE)) && (current_uid() != 0)) {
         return -EPERM;
     }
-    else if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
+    else if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
         if (((pid == 0) && (current_uid() != 0)) || (check_pid_from_list(current->pid, pid) != 0)) {
             return -EPERM;
         }
@@ -408,6 +408,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     //start monitoring for syscall and pid
     if (cmd  == REQUEST_START_MONITORING){
         //
+        return 0 //just putting this here to avoid compile errors
     }
 
 }
