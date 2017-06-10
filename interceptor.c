@@ -395,7 +395,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     }
 
     //de-intercept
-    if (cmd = REQUEST_SYSCALL_RELEASE){
+    if (cmd == REQUEST_SYSCALL_RELEASE){
         set_addr_rw((unsigned long) sys_call_table);
         sys_call_table[syscall] = (unsigned long) table[syscall].f;
         set_addr_ro((unsigned long) sys_call_table);
@@ -404,6 +404,10 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         //init the head for future usage
         INIT_LIST_HEAD(&table[syscall].my_list);
 
+    }
+    //start monitoring for syscall and pid
+    if (cmd  == REQUEST_START_MONITORING){
+        //
     }
 
 }
