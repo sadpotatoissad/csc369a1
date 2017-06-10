@@ -278,8 +278,8 @@ void my_exit_group(int status)
  */
 asmlinkage long interceptor(struct pt_regs reg) {
     //check to see if syscall is monitored for current pid
-    spin_lock(&calltable_lock);
     int cur_monitored, monitored, sys_call_num, ret;
+    spin_lock(&calltable_lock);
     sys_call_num = reg.ax;
     cur_monitored = check_pid_monitored(sys_call_num, current->pid);
     monitored = table[sys_call_num].monitored;
@@ -481,13 +481,13 @@ static int init_function(void) {
  */
 static void exit_function(void)
 {
+    int i;
     spin_lock(&calltable_lock);
     //de-intercept system calls
-    int i;
     for (i=0; i<(NR_syscalls + 1); i++){
         if(table[i].intercepted == 1){
             set_addr_rw((unsigned long) sys_call_table);
-            sys_call_table[i] = (unsigned long *) table[i].f;
+            sys_call_table[i] = (void *) table[i].f;
             set_addr_ro((unsigned long) sys_call_table);
             destroy_list(i);
 
