@@ -392,6 +392,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         set_addr_rw((unsigned long)sys_call_table);
         sys_call_table[syscall] = (void*) interceptor;
         set_addr_ro((unsigned long)sys_call_table);
+        return 0;
     }
 
     //de-intercept
@@ -403,6 +404,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         destroy_list(syscall);
         //init the head for future usage
         INIT_LIST_HEAD(&table[syscall].my_list);
+        return 0;
 
     }
     //start monitoring for syscall and pid
@@ -435,6 +437,7 @@ long (*orig_custom_syscall)(void);
  * - Ensure synchronization as needed.
  */
 static int init_function(void) {
+    int i;
     set_addr_rw((unsigned long) sys_call_table);
     //store orig
     orig_custom_syscall = sys_call_table[0];
@@ -447,7 +450,7 @@ static int init_function(void) {
     set_addr_ro((unsigned long) sys_call_table);
 
     //initializations
-    int i;
+
     for(i = 0; i < (NR_syscalls+1); i++){
         table[i].f = sys_call_table[i];
         table[i].intercepted = 0;
