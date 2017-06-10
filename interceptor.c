@@ -363,7 +363,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         }
     }
     //check for correct context of commands
-    else if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].monitored == 0)) {
+    else if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].intercepted == 0)) {
         return -EINVAL;
     }
     else if ((cmd == REQUEST_STOP_MONITORING) && (check_pid_monitored(syscall, pid) == 0)){
