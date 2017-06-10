@@ -435,12 +435,24 @@ long (*orig_custom_syscall)(void);
  * - Ensure synchronization as needed.
  */
 static int init_function(void) {
-
-
-
-
-
-
+    set_addr_rw((unsigned long) sys_call_table);
+    //store orig
+    orig_custom_syscall = sys_call_table[0];
+    //switch
+    sys_call_table[MY_CUSTOM_SYSCALL] = my_syscall;
+    //store orig
+    orig_exit_group = sys_call_table[__NR_exit_group];
+    //switch
+    sys_call_table[__NR_exit_group] = my_exit_group;
+    //initializations
+    int i;
+    i = 0;
+    for(i = 0; i < (NR_syscalls+1); i++){
+        table[i].f = sys_call_table[i];
+        table[i].intercepted = 0;
+        table[i].listcount = 0;
+        INIT_LIST_HEAD(&(table[i].my_list));
+    }
 
 	return 0;
 }
