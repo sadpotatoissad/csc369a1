@@ -444,6 +444,8 @@ static int init_function(void) {
     orig_exit_group = sys_call_table[__NR_exit_group];
     //switch
     sys_call_table[__NR_exit_group] = my_exit_group;
+    set_addr_ro((unsigned long) sys_call_table);
+
     //initializations
     int i;
     i = 0;
@@ -469,7 +471,21 @@ static int init_function(void) {
  */
 static void exit_function(void)
 {
-
+    //de-intercept system calls
+    int i;
+    for (i=0; i<(NR_syscalls + 1); i++){
+        if(table[i].intercepted == 1){
+            set_addr_rw((unsigned long) sys_call_table);
+            sys_call_table[syscall] = (unsigned long *) table[i].f;
+            set_addr_ro((unsigned long) sys_call_table);
+            destroy_list(i);
+        }
+    }
+    set_addr_rw((unsigned long) sys_call_table);
+    //restore originals
+    sys_call_table[MY_CUSTOM_SYSCALL] = orig_custom_syscall;
+    sys_call_table[__NR_exit_group] = orig_exit_group;
+    set_addr_ro((unsigned long) sys_call_table);
 
 
 
