@@ -360,7 +360,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         return -EPERM;
     }
     else if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
-        if ((current_uid() != 0) && ((pid == 0) || (check_pid_from_list(current->pid, pid) != 0))) {
+        if (((current_uid() != 0) && (pid == 0)) || ((pid != 0) && (check_pid_from_list(current->pid, pid) != 0))) {
         return -EPERM;
         }
 
