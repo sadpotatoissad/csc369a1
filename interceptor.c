@@ -369,7 +369,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     else if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].intercepted == 0)) {
         return -EINVAL;
     }
-    else if ((cmd == REQUEST_STOP_MONITORING) && ((table[syscall].monitored == 0) || ((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_from_list(syscall,pid) == 0) && (table[syscall].monitored != 2)))){
+    else if ((cmd == REQUEST_STOP_MONITORING) && ((table[syscall].monitored == 0) || ((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_monitored(syscall,pid) == 0) && (table[syscall].monitored == 1)))){
         return -EINVAL;
     }
     else if ((cmd == REQUEST_STOP_MONITORING) && (table[syscall].intercepted == 0)) {
@@ -378,8 +378,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     else if ((cmd == REQUEST_SYSCALL_INTERCEPT) && (table[syscall].intercepted == 1)) {
         return -EBUSY;
     }
-    else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored != 2)) || ((check_pid_from_list(syscall,pid) == 0) && (table[syscall].monitored == 2)))) {
-        return -EBUSY;
+    else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
+		return -EBUSY;
     }
     //Need to add functionality for this part when adding stuff
     //If a pid cannot be added to a monitored list, due to no memory being available,
@@ -456,6 +456,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         }
         else if (table[syscall].monitored == 1) {
             ret = del_pid_sysc(pid, syscall);
+			if (table[syscall].listcount == 0)  // add by bin
+				table[syscall].monitored = 0;   // add by bin
         }
         else if (table[syscall].monitored == 2) {
             ret = add_pid_sysc(pid, syscall);
