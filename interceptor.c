@@ -360,9 +360,10 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         return -EPERM;
     }
     else if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
-        if (((pid == 0) && (current_uid() != 0)) || (check_pid_from_list(current->pid, pid) != 0)) {
-            return -EPERM;
+        if ((current_uid() != 0) && ((pid == 0) || (check_pid_from_list(current->pid, pid) != 0))) {
+        return -EPERM;
         }
+
     }
     //check for correct context of commands
     else if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].intercepted == 0)) {
