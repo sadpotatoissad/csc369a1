@@ -420,7 +420,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     }
     //start monitoring for syscall and pid
     else if (cmd  == REQUEST_START_MONITORING){
-        if (pid == 0)){
+        if (pid == 0){
             //change to black-list
             if (table[syscall].listcount != 0){
                 destroy_list(syscall);
