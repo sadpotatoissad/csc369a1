@@ -352,7 +352,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     if ((syscall > NR_syscalls)||(syscall <= 0)) {
         return -EINVAL;
     }
-    else if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING))&&((pid < 0)||(pid_task(find_vpid(pid),PIDTYPE_PID) == NULL))) {
+    else if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING))&&((pid < 0)||(pid !=0 && pid_task(find_vpid(pid),PIDTYPE_PID) == NULL))) {
         return -EINVAL;
     }
     //check for correct permissions
