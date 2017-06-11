@@ -346,6 +346,8 @@ asmlinkage long interceptor(struct pt_regs reg) {
  *   you might be holding, before you exit the function (including error cases!).
  */
 asmlinkage long my_syscall(int cmd, int syscall, int pid) {
+    int ret;
+    ret = 0;
     //check to see if syscall is valid
     if ((syscall > NR_syscalls)||(syscall <= 0)) {
         return -EINVAL;
@@ -366,7 +368,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     else if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].intercepted == 0)) {
         return -EINVAL;
     }
-    else if ((cmd == REQUEST_STOP_MONITORING) && (check_pid_monitored(syscall, pid) == 0)){
+    else if ((cmd == REQUEST_STOP_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_from_list(syscall,pid) == 0) && (table[syscall].monitored != 2)))){
         return -EINVAL;
     }
     else if ((cmd == REQUEST_STOP_MONITORING) && (table[syscall].intercepted == 0)) {
@@ -375,7 +377,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     else if ((cmd == REQUEST_SYSCALL_INTERCEPT) && (table[syscall].intercepted == 1)) {
         return -EBUSY;
     }
-    else if ((cmd == REQUEST_START_MONITORING) && (check_pid_monitored(syscall, pid) == 1)) {
+    else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored != 2)) || ((check_pid_from_list(syscall,pid) == 0) && (table[syscall].monitored == 2)))) {
         return -EBUSY;
     }
     //Need to add functionality for this part when adding stuff
@@ -417,11 +419,45 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 
     }
     //start monitoring for syscall and pid
-    //else if (cmd  == REQUEST_START_MONITORING){
-        //
-    //    return 0; //just putting this here to avoid compile errors
-    //}
-
+    else if (cmd  == REQUEST_START_MONITORING){
+        if (pid == 0)){
+            //change to black-list
+            if (table[syscall].listcount != 0){
+                destroy_list(syscall);
+                INIT_LIST_HEAD(&table[syscall].my_list);
+            }
+            table[syscall].monitored = 2;
+        }
+        else if(table[syscall].monitored == 0) {
+            table[syscall].monitored = 1;
+            ret = add_pid_sysc(pid, syscall);
+        }
+        else if (table[syscall].monitored == 1) {
+            ret = add_pid_sysc(pid, syscall);
+        }
+        else if (table[syscall].monitored == 2) {
+            if (check_pid_monitored(syscall, pid)){
+                ret = del_pid_sysc(pid, syscall);
+            }
+        }
+    }
+    else if (cmd == REQUEST_STOP_MONITORING){
+        if (pid == 0){
+            //change to white-list
+            if(table[syscall].listcount != 0){
+                destroy_list(syscall);
+                INIT_LIST_HEAD(&table[syscall].my_list);
+            }
+            table[syscall].monitored = 0;
+        }
+        else if (table[syscall].monitored == 1) {
+            ret = del_pid_sysc(pid, syscall);
+        }
+        else if (table[syscall].monitored == 2) {
+            ret = add_pid_sysc(pid, syscall);
+        }
+    }
+    return ret;
 }
 
 /**
@@ -491,7 +527,7 @@ static void exit_function(void)
     for (i=0; i<(NR_syscalls + 1); i++){
         if(table[i].intercepted == 1){
             set_addr_rw((unsigned long) sys_call_table);
-            sys_call_table[i] = (void *) table[i].f;
+            sys_call_table[i] = (long *) table[i].f;
             set_addr_ro((unsigned long) sys_call_table);
             destroy_list(i);
 
