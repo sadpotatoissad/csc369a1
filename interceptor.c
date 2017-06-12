@@ -396,7 +396,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     //intercept
     //store orig
     //double check syntax for function ptrs
-    if (cmd == REQUEST_SYSCALL_INTERCEPT){
+    else if (cmd == REQUEST_SYSCALL_INTERCEPT){
         //spin_lock(&calltable_lock);
         table[syscall].intercepted = 1;
         //table[syscall].f =  sys_call_table[syscall]; move this line to init also need to have correct casting
