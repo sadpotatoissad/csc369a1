@@ -349,8 +349,7 @@ asmlinkage long interceptor(struct pt_regs reg) {
 asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     int ret;
     ret = 0;
-	spin_lock(&calltable_lock); // add by bin
-    spin_lock(&pidlist_lock); // add by bin
+
     //check to see if syscall is valid
     if ((syscall > NR_syscalls)||(syscall <= 0)) {
         return -EINVAL;
@@ -384,8 +383,6 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
 		return -EBUSY;
     } 
-	spin_unlock(&pidlist_lock); //add by bin
-    spin_unlock(&calltable_lock);//add by bin
 
     //double check syntax for function ptrs
     if (cmd == REQUEST_SYSCALL_INTERCEPT){
