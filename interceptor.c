@@ -369,7 +369,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     else if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].intercepted == 0)) {
         return -EINVAL;
     }
-    else if ((cmd == REQUEST_STOP_MONITORING) && ((table[syscall].monitored == 0) || ((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_monitored(syscall,pid) == 0) && (table[syscall].monitored == 1)))){
+    else if ((cmd == REQUEST_STOP_MONITORING) && ((table[syscall].monitored == 0) || ((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_monitored(syscall,pid) == 0) && (table[syscall].monitored != 2)))){
         return -EINVAL;
     }
     else if ((cmd == REQUEST_STOP_MONITORING) && (table[syscall].intercepted == 0)) {
