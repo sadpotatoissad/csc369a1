@@ -349,7 +349,7 @@ asmlinkage long interceptor(struct pt_regs reg) {
 asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     int ret;
     ret = 0;
-	int reval;
+	int retval;
 	retval = 0;
 	spin_lock(&calltable_lock); // add by bin
     spin_lock(&pidlist_lock); // add by bin
