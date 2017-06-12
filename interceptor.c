@@ -481,12 +481,16 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         }
         else if (table[syscall].monitored == 1) {
             ret = del_pid_sysc(pid, syscall);
-			if (table[syscall].listcount == 0)  // add by bin
-				table[syscall].monitored = 0;   // add by bin
+			//if (table[syscall].listcount == 0)  // add by bin
+			//	table[syscall].monitored = 0;   // add by bin
         }
         else if (table[syscall].monitored == 2) {
             ret = add_pid_sysc(pid, syscall);
         }
+		//add -EINVAL condition here by bin
+		else if ((table[syscall].monitored == 0) || ((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_monitored(syscall,pid) == 0) && (table[syscall].monitored == 1))){
+			ret = -EINVAL;
+		}
         //spin_unlock(&pidlist_lock);
         //spin_unlock(&calltable_lock);
     }
