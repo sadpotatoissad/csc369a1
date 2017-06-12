@@ -157,11 +157,12 @@ int do_nonroot(int syscall) {
 	printf("findish first do_nonroot do_start\n");
 	do_start(syscall, getpid(), -EBUSY);//
 	printf("findish second do_nonroot do_start\n");
+	do_start(syscall, getpid(), -EBUSY);//
+	printf("findish third do_nonroot do_start\n");
 	do_monitor(syscall);
 	do_stop(syscall, getpid(), 0);
-	printf("pid:%d\n", getpid());
 	do_stop(syscall, getpid(), -EINVAL);//
-	printf("pid:%d\n", getpid());
+	do_stop(syscall, getpid(), -EINVAL);//
 
 	return 0;
 }
