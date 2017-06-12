@@ -383,18 +383,6 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 		return -EBUSY;
     }
 
-    //Need to add functionality for this part when adding stuff
-    //If a pid cannot be added to a monitored list, due to no memory being available,
-    //an -ENOMEM error code should be returned
-    /*
-    - REQUEST_SYSCALL_INTERCEPT to intercept the 'syscall' argument
- *      - REQUEST_SYSCALL_RELEASE to de-intercept the 'syscall' argument
- *      - REQUEST_START_MONITORING to start monitoring for 'pid' whenever it issues 'syscall'
- *      - REQUEST_STOP_MONITORING to stop monitoring for 'pid'
- *      For the last two, if pid=0, that translates to "all pids".
-     */
-    //intercept
-    //store orig
     //double check syntax for function ptrs
     else if (cmd == REQUEST_SYSCALL_INTERCEPT){
         //spin_lock(&calltable_lock);
@@ -407,9 +395,9 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         return 0;
     }
 	// add by bin
-	else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
-		return -EBUSY;
-    }
+	//else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
+	//	return -EBUSY;
+    //}
     //de-intercept
     else if (cmd == REQUEST_SYSCALL_RELEASE){
         //spin_lock(&calltable_lock);
