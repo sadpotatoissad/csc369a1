@@ -468,7 +468,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
             ret = add_pid_sysc(pid, syscall);
         }
         spin_unlock(&pidlist_lock);
-        spin_unlock(&sys_call_table_lock);
+        spin_unlock(&calltable_lock);
     }
     return ret;
 }
