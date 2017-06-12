@@ -382,6 +382,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
 		return -EBUSY;
     }
+
     //Need to add functionality for this part when adding stuff
     //If a pid cannot be added to a monitored list, due to no memory being available,
     //an -ENOMEM error code should be returned
@@ -423,9 +424,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 
     }
     //start monitoring for syscall and pid
-	else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))){
-		return -EBUSY;	
-	}
+
     else if (cmd  == REQUEST_START_MONITORING){
         //spin_lock(&calltable_lock);
         //spin_lock(&pidlist_lock);
