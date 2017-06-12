@@ -135,8 +135,9 @@ void do_as_guest(const char *str, int args1, int args2) {
 
 	char cmd[1024];
 	char cmd2[1024];
+	printf("start do_as_guest\n");
 	char* exec[]={"bash", "-c", cmd2, NULL};
-
+	printf("never reach here do_as_guest\n");
 	sprintf(cmd, str, args1, args2);
 	sprintf(cmd2, "su nobody -c '%s' ", cmd);
 	switch ((last_child = fork()))  {
