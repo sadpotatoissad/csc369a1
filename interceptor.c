@@ -384,8 +384,13 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
 		ret = -EBUSY;
     }
-	//spin_unlock(&pidlist_lock); //add by bin
-    //spin_unlock(&calltable_lock);//add by bin
+
+    if (ret != 0){
+        spin_unlock(&pidlist_lock); //add by bin
+        spin_unlock(&calltable_lock);//add by bin
+        return ret;
+    }
+
 
     //double check syntax for function ptrs
     if (cmd == REQUEST_SYSCALL_INTERCEPT){
