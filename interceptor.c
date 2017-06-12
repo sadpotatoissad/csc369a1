@@ -423,6 +423,9 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 
     }
     //start monitoring for syscall and pid
+	else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))){
+		return -EBUSY;	
+	}
     else if (cmd  == REQUEST_START_MONITORING){
         //spin_lock(&calltable_lock);
         //spin_lock(&pidlist_lock);
@@ -443,20 +446,17 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         else if(table[syscall].monitored == 0) {
             table[syscall].monitored = 1;
             ret = add_pid_sysc(pid, syscall);
-
-
-
         }
         else if (table[syscall].monitored == 1) {
             
-
+			/*
 			int rr;
 			rr=((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2))));
 			printk(KERN_WARNING "check EBUSY condition. rr= %d, 1 is busy, 0 is not", rr);
 			if (rr==1){
 
 				return -EBUSY;
-			}
+			}*/
 			ret = add_pid_sysc(pid, syscall);
 
         }
