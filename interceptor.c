@@ -483,6 +483,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
             ret = del_pid_sysc(pid, syscall);
 			//if (table[syscall].listcount == 0)  // add by bin
 			//	table[syscall].monitored = 0;   // add by bin
+			printk(KERN_WARNING "table[syscall].listcount==%d",table[syscall].listcount );
+			printk(KERN_WARNING "table[syscall].monitored==%d",table[syscall].monitored );
         }
         else if (table[syscall].monitored == 2) {
             ret = add_pid_sysc(pid, syscall);
