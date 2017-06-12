@@ -355,33 +355,33 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     if ((syscall > NR_syscalls)||(syscall <= 0)) {
         ret = -EINVAL;
     }
-    if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING))&&((pid < 0)||(pid !=0 && pid_task(find_vpid(pid),PIDTYPE_PID) == NULL))) {
+    else if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING))&&((pid < 0)||(pid !=0 && pid_task(find_vpid(pid),PIDTYPE_PID) == NULL))) {
         ret = -EINVAL;
     }
     //check for correct permissions
-    if (((cmd == REQUEST_SYSCALL_INTERCEPT)||(cmd == REQUEST_SYSCALL_RELEASE)) && (current_uid() != 0)) {
+    else if (((cmd == REQUEST_SYSCALL_INTERCEPT)||(cmd == REQUEST_SYSCALL_RELEASE)) && (current_uid() != 0)) {
         ret = -EPERM;
     }
-    if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
+    else if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
         if ((current_uid() != 0) && ((pid == 0) || (check_pid_from_list(current->pid, pid) != 0))) {
         ret = -EPERM;
         }
 
     }
     //check for correct context of commands
-    if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].intercepted == 0)) {
+    else if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].intercepted == 0)) {
         ret = -EINVAL;
     }
-    if ((cmd == REQUEST_STOP_MONITORING) && ((table[syscall].monitored == 0) || ((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_monitored(syscall,pid) == 0) && (table[syscall].monitored == 1)))){
+    else if ((cmd == REQUEST_STOP_MONITORING) && ((table[syscall].monitored == 0) || ((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_monitored(syscall,pid) == 0) && (table[syscall].monitored == 1)))){
         ret = -EINVAL;
     }
-    if ((cmd == REQUEST_STOP_MONITORING) && (table[syscall].intercepted == 0)) {
+    else if ((cmd == REQUEST_STOP_MONITORING) && (table[syscall].intercepted == 0)) {
         ret = -EINVAL;
     }
-    if ((cmd == REQUEST_SYSCALL_INTERCEPT) && (table[syscall].intercepted == 1)) {
+    else if ((cmd == REQUEST_SYSCALL_INTERCEPT) && (table[syscall].intercepted == 1)) {
         ret = -EBUSY;
     }
-    if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
+    else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
 		ret = -EBUSY;
     }
 
