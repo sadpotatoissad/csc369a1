@@ -422,8 +422,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     }
     //start monitoring for syscall and pid
     else if (cmd  == REQUEST_START_MONITORING){
-        spin_lock(&calltable_lock);
-        spin_lock(&pidlist_lock);
+        //spin_lock(&calltable_lock);
+        //spin_lock(&pidlist_lock);
         if (pid == 0){
             //change to black-list
             if (table[syscall].listcount != 0){
@@ -452,8 +452,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 			printk(KERN_WARNING "check EBUSY condition. rr= %d, 1 is busy, 0 is not", rr);
 			if (rr==1){
 
-				spin_unlock(&pidlist_lock);
-				spin_unlock(&calltable_lock);
+				//spin_unlock(&pidlist_lock);
+				//spin_unlock(&calltable_lock);
 				return -EBUSY;}
 			printk(KERN_WARNING "monitored==1,add pid to list, ret=%d", ret);
 			ret = add_pid_sysc(pid, syscall); // add again
@@ -464,8 +464,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
                 ret = del_pid_sysc(pid, syscall);
             }
         }
-        spin_unlock(&pidlist_lock);
-        spin_unlock(&calltable_lock);
+        //spin_unlock(&pidlist_lock);
+        //spin_unlock(&calltable_lock);
     }
     else if (cmd == REQUEST_STOP_MONITORING){
         spin_lock(&calltable_lock);
