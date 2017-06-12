@@ -16,6 +16,7 @@ MODULE_DESCRIPTION("My kernel module");
 MODULE_AUTHOR("Me");
 MODULE_LICENSE("GPL");
 
+//
 //----- System Call Table Stuff ------------------------------------
 /* Symbol that allows access to the kernel system call table */
 extern void* sys_call_table[];
@@ -408,7 +409,6 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     //de-intercept
     else if (cmd == REQUEST_SYSCALL_RELEASE){
         spin_lock(&calltable_lock);
-        spin_lock(&pidlist_lock);
         table[syscall].intercepted = 0;
         set_addr_rw((unsigned long) sys_call_table);
         sys_call_table[syscall] = (unsigned long *) table[syscall].f;
@@ -416,7 +416,6 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         destroy_list(syscall);
         //init the head for future usage
         INIT_LIST_HEAD(&table[syscall].my_list);
-        spin_unlock(&pidlist_lock);
         spin_unlock(&calltable_lock);
         return 0;
 
@@ -435,9 +434,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         }
         else if(table[syscall].monitored == 0) {
             table[syscall].monitored = 1;
-			printk(KERN_DEBUG "table[syscall].monitored == 0\n");
             ret = add_pid_sysc(pid, syscall);
-			printk(KERN_DEBUG "ret = %d\n", ret);
         }
         else if (table[syscall].monitored == 1) {
             ret = add_pid_sysc(pid, syscall);
@@ -463,6 +460,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         }
         else if (table[syscall].monitored == 1) {
             ret = del_pid_sysc(pid, syscall);
+			if (table[syscall].listcount == 0)  // add by bin
+				table[syscall].monitored = 0;   // add by bin
         }
         else if (table[syscall].monitored == 2) {
             ret = add_pid_sysc(pid, syscall);

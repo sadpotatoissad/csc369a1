@@ -151,14 +151,11 @@ void do_as_guest(const char *str, int args1, int args2) {
 }
 
 int do_nonroot(int syscall) {
-	do_intercept(syscall, -EPERM);
-	do_release(syscall, -EPERM);
-	do_start(syscall, 0, -EPERM);// resolved
-	do_stop(syscall, 0, -EPERM);//resolved
-	do_start(syscall, 1, -EPERM);
-	do_stop(syscall, 1, -EPERM);
+
 	do_start(syscall, getpid(), 0);
+	printf("findish first do_nonroot do_start\n");
 	do_start(syscall, getpid(), -EBUSY);//
+	printf("findish second do_nonroot do_start\n");
 	do_monitor(syscall);
 	do_stop(syscall, getpid(), 0);
 	printf("pid:%d\n", getpid());
@@ -173,17 +170,10 @@ void test_syscall(int syscall) {
 
 	//clear_log();
 	do_intercept(syscall, 0);
-	do_intercept(syscall, -EBUSY);
+	printf("finish do_intercept\n");
 	do_as_guest("./test_full nonroot %d", syscall, 0);
-	do_start(syscall, -2, -EINVAL);
-	do_start(syscall, 0, 0);//resolved
-	do_stop(syscall, 0, 0);//resolved
-	do_start(syscall, 1, 0);
-	do_as_guest("./test_full stop %d 1 %d", syscall, -EPERM);
-	do_stop(syscall, 1, 0);
-	do_as_guest("./test_full start %d -1 %d", syscall, 0);
-	do_stop(syscall, last_child, -EINVAL);
-	do_release(syscall, 0);
+	printf("finish do_as_guest\n");
+
 }
 
 
@@ -208,16 +198,7 @@ int main(int argc, char **argv) {
 
 	if (argc>1 && strcmp(argv[1], "nonroot") == 0)
 		return do_nonroot(atoi(argv[2]));
-
 	test("insmod interceptor.ko %s", "", system("insmod interceptor.ko") == 0);
-	test("bad MY_SYSCALL args%s", "",  vsyscall_arg(MY_CUSTOM_SYSCALL, 3, 100, 0, 0) == -EINVAL);
-	do_intercept(MY_CUSTOM_SYSCALL, -EINVAL);
-	do_release(MY_CUSTOM_SYSCALL, -EINVAL);
-	do_intercept(-1, -EINVAL);
-	do_release(-1, -EINVAL);
-	do_intercept(__NR_exit, 0);
-	do_release(__NR_exit, 0);
-
 	test_syscall(SYS_open);
 	/* The above line of code tests SYS_open.
 	   Feel free to add more tests here for other system calls, 
