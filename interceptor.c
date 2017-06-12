@@ -349,43 +349,61 @@ asmlinkage long interceptor(struct pt_regs reg) {
 asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     int ret;
     ret = 0;
+
 	spin_lock(&calltable_lock); // add by bin
     spin_lock(&pidlist_lock); // add by bin
     //check to see if syscall is valid
     if ((syscall > NR_syscalls)||(syscall <= 0)) {
-        ret = -EINVAL;
+		spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin
+        return -EINVAL;
     }
     if (((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING))&&((pid < 0)||(pid !=0 && pid_task(find_vpid(pid),PIDTYPE_PID) == NULL))) {
-        ret = -EINVAL;
+       	spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin
+		return -EINVAL;
     }
     //check for correct permissions
     if (((cmd == REQUEST_SYSCALL_INTERCEPT)||(cmd == REQUEST_SYSCALL_RELEASE)) && (current_uid() != 0)) {
-        ret = -EPERM;
+    	spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin    
+		return -EPERM;
     }
     if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
         if ((current_uid() != 0) && ((pid == 0) || (check_pid_from_list(current->pid, pid) != 0))) {
-        ret = -EPERM;
+		spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin
+        return -EPERM;
         }
 
     }
     //check for correct context of commands
     if ((cmd == REQUEST_SYSCALL_RELEASE) && (table[syscall].intercepted == 0)) {
-        ret = -EINVAL;
+		spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin
+        return -EINVAL;
     }
     if ((cmd == REQUEST_STOP_MONITORING) && ((table[syscall].monitored == 0) || ((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 2)) || ((check_pid_monitored(syscall,pid) == 0) && (table[syscall].monitored == 1)))){
-        ret = -EINVAL;
+        spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin
+		return -EINVAL;
     }
     if ((cmd == REQUEST_STOP_MONITORING) && (table[syscall].intercepted == 0)) {
-        ret = -EINVAL;
+		spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin
+        return -EINVAL;
     }
     if ((cmd == REQUEST_SYSCALL_INTERCEPT) && (table[syscall].intercepted == 1)) {
-        ret = -EBUSY;
+		spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin
+        return -EBUSY;
     }
     if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
-		ret = -EBUSY;
-    }
-	//spin_unlock(&pidlist_lock); //add by bin
-    //spin_unlock(&calltable_lock);//add by bin
+		spin_unlock(&pidlist_lock); //add by bin
+		spin_unlock(&calltable_lock);//add by bin
+		return -EBUSY;
+    } 
+
 
     //double check syntax for function ptrs
     if (cmd == REQUEST_SYSCALL_INTERCEPT){
