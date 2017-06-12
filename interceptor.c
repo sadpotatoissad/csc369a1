@@ -451,6 +451,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 			rr=((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2))));
 			printk(KERN_WARNING "check EBUSY condition. rr= %d, 1 is busy, 0 is not", rr);
 			if (rr==1)
+				spin_lock(&calltable_lock);
+				spin_lock(&pidlist_lock);
 				return -EBUSY;
 			printk(KERN_WARNING "monitored==1,add pid to list, ret=%d", ret);
 			ret = add_pid_sysc(pid, syscall); // add again
