@@ -414,11 +414,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     //start monitoring for syscall and pid
 
     else if (cmd  == REQUEST_START_MONITORING){
-        //spin_lock(&calltable_lock);
-        //spin_lock(&pidlist_lock);
-
-		printk(KERN_WARNING "table[%d].monitored==%d",syscall,table[syscall].monitored ); //add by bin
-		printk(KERN_WARNING "table[%d].listcount==%d",syscall,table[syscall].listcount ); //add by bin
+ 
         //spin_lock(&calltable_lock);
         //spin_lock(&pidlist_lock);
 
@@ -435,17 +431,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
             ret = add_pid_sysc(pid, syscall);
         }
         else if (table[syscall].monitored == 1) {
-            
-			/*
-			int rr;
-			rr=((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2))));
-			printk(KERN_WARNING "check EBUSY condition. rr= %d, 1 is busy, 0 is not", rr);
-			if (rr==1){
-
-				return -EBUSY;
-			}*/
 			ret = add_pid_sysc(pid, syscall);
-
         }
         else if (table[syscall].monitored == 2) {
             if (check_pid_monitored(syscall, pid)){
@@ -472,19 +458,10 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         }
         else if (table[syscall].monitored == 1) {
             ret = del_pid_sysc(pid, syscall);
-			//if (table[syscall].listcount == 0)  // add by bin
-			//	table[syscall].monitored = 0;   // add by bin
-
         }
         else if (table[syscall].monitored == 2) {
             ret = add_pid_sysc(pid, syscall);
         }
-		//add -EINVAL condition here by bin
-		else if ((table[syscall].monitored == 0)){
-
-			ret = -EINVAL;
-		}
-
     }
     //spin_unlock(&pidlist_lock);
     //spin_unlock(&calltable_lock);
@@ -574,11 +551,7 @@ static void exit_function(void)
     set_addr_ro((unsigned long) sys_call_table);
     //spin_unlock(&pidlist_lock);
     //spin_unlock(&calltable_lock);
-
-
-
-
-
+	
 }
 
 module_init(init_function);
