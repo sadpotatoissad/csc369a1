@@ -379,12 +379,12 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     else if ((cmd == REQUEST_SYSCALL_INTERCEPT) && (table[syscall].intercepted == 1)) {
         return -EBUSY;
     }
-    else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
+    if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
 		return -EBUSY;
     }
 
     //double check syntax for function ptrs
-    else if (cmd == REQUEST_SYSCALL_INTERCEPT){
+    if (cmd == REQUEST_SYSCALL_INTERCEPT){
         //spin_lock(&calltable_lock);
         table[syscall].intercepted = 1;
         //table[syscall].f =  sys_call_table[syscall]; move this line to init also need to have correct casting
@@ -394,10 +394,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         //spin_unlock(&calltable_lock);
         return 0;
     }
-	// add by bin
-	else if ((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2)))) {
-		return -EBUSY;
-    }
+
     //de-intercept
     else if (cmd == REQUEST_SYSCALL_RELEASE){
         //spin_lock(&calltable_lock);
