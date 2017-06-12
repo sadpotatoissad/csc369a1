@@ -171,6 +171,7 @@ void test_syscall(int syscall) {
 	//clear_log();
 	do_intercept(syscall, 0);
 	printf("finish do_intercept\n");
+	printf("start do_as_guest\n");
 	do_as_guest("./test_full nonroot %d", syscall, 0);
 	printf("finish do_as_guest\n");
 
