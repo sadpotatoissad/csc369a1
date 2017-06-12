@@ -440,7 +440,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 			
 			int rr;
 			rr = check_pid_monitored(syscall, pid);
-			printk(KERN_WARNING "check if pid is in the list. rr==%d, 1 is in, 0 is not." rr);
+			printk(KERN_WARNING "check if pid is in the list. rr==%d, 1 is in, 0 is not.", rr);
         }
         else if (table[syscall].monitored == 1) {
             ret = add_pid_sysc(pid, syscall);
