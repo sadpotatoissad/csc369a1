@@ -435,7 +435,9 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         }
         else if(table[syscall].monitored == 0) {
             table[syscall].monitored = 1;
+			printk(KERN_DEBUG "table[syscall].monitored == 0\n");
             ret = add_pid_sysc(pid, syscall);
+			printk(KERN_DEBUG "ret = %d\n", ret);
         }
         else if (table[syscall].monitored == 1) {
             ret = add_pid_sysc(pid, syscall);
