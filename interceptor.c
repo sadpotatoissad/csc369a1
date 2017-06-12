@@ -428,7 +428,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         spin_lock(&calltable_lock);
         spin_lock(&pidlist_lock);
 =======
-		
+
 		printk(KERN_WARNING "table[%d].monitored==%d",syscall,table[syscall].monitored ); //add by bin
 		printk(KERN_WARNING "table[%d].listcount==%d",syscall,table[syscall].listcount ); //add by bin
         //spin_lock(&calltable_lock);
@@ -481,16 +481,12 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
         spin_unlock(&calltable_lock);
     }
     else if (cmd == REQUEST_STOP_MONITORING){
-<<<<<<< HEAD
+
         spin_lock(&calltable_lock);
         spin_lock(&pidlist_lock);
-=======
 
 		printk(KERN_WARNING "table[%d].monitored==%d",syscall,table[syscall].monitored ); //add by bin
 		printk(KERN_WARNING "table[%d].listcount==%d",syscall,table[syscall].listcount ); //add by bin
-        //spin_lock(&calltable_lock);
-        //spin_lock(&pidlist_lock);
->>>>>>> 0373077a78c65973cde92b29b4586f6f858dc06d
         if (pid == 0){
             //change to white-list
             if(table[syscall].listcount != 0){
@@ -503,14 +499,14 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
             ret = del_pid_sysc(pid, syscall);
 			//if (table[syscall].listcount == 0)  // add by bin
 			//	table[syscall].monitored = 0;   // add by bin
-			
+
         }
         else if (table[syscall].monitored == 2) {
             ret = add_pid_sysc(pid, syscall);
         }
 		//add -EINVAL condition here by bin
 		else if ((table[syscall].monitored == 0)){
-			
+
 			ret = -EINVAL;
 		}
 
