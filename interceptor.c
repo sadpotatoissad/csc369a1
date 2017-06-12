@@ -448,7 +448,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 
         }
         else if (table[syscall].monitored == 1) {
-            ret = add_pid_sysc(pid, syscall);
+            
 
 			int rr;
 			rr=((cmd == REQUEST_START_MONITORING) && (((check_pid_monitored(syscall, pid) == 1)&&(table[syscall].monitored == 1)) || ((check_pid_monitored(syscall,pid) == 0 ) && (table[syscall].monitored == 2))));
@@ -457,9 +457,8 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 
 				return -EBUSY;
 			}
-			//printk(KERN_WARNING "monitored==1,add pid to list, ret=%d", ret);
-			ret = add_pid_sysc(pid, syscall); // add again
-			printk(KERN_WARNING "monitored==1,add pid to list again, ret=%d", ret);
+			ret = add_pid_sysc(pid, syscall);
+
         }
         else if (table[syscall].monitored == 2) {
             if (check_pid_monitored(syscall, pid)){
