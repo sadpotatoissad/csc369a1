@@ -423,7 +423,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     }
     //start monitoring for syscall and pid
     else if (cmd  == REQUEST_START_MONITORING){
-        spin_lock(&sys_call_table_lock);
+        spin_lock(&calltable_lock);
         spin_lock(&pidlist_lock);
         if (pid == 0){
             //change to black-list
@@ -448,7 +448,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
             }
         }
         spin_unlock(&pidlist_lock);
-        spin_unlock(&sys_call_table_lock);
+        spin_unlock(&calltable_lock);
     }
     else if (cmd == REQUEST_STOP_MONITORING){
         spin_lock(&sys_call_table_lock);
