@@ -424,16 +424,14 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
     }
     //start monitoring for syscall and pid
     else if (cmd  == REQUEST_START_MONITORING){
-<<<<<<< HEAD
         spin_lock(&calltable_lock);
         spin_lock(&pidlist_lock);
-=======
 
 		printk(KERN_WARNING "table[%d].monitored==%d",syscall,table[syscall].monitored ); //add by bin
 		printk(KERN_WARNING "table[%d].listcount==%d",syscall,table[syscall].listcount ); //add by bin
         //spin_lock(&calltable_lock);
         //spin_lock(&pidlist_lock);
->>>>>>> 0373077a78c65973cde92b29b4586f6f858dc06d
+
         if (pid == 0){
             //change to black-list
             if (table[syscall].listcount != 0){
@@ -446,15 +444,15 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
             table[syscall].monitored = 1;
 			//printk(KERN_WARNING "monitored ==0, change monited from 0 to 1");
             ret = add_pid_sysc(pid, syscall);
-<<<<<<< HEAD
+
 			printk(KERN_WARNING "add pid to list, ret=%d", ret);
 
 			int rr;
 			rr = check_pid_monitored(syscall, pid);
 			printk(KERN_WARNING "check if pid is in the list. rr==%d, 1 is in, 0 is not.", rr);
-=======
+
 			//printk(KERN_WARNING "add pid to list, ret=%d", ret);
->>>>>>> 0373077a78c65973cde92b29b4586f6f858dc06d
+
         }
         else if (table[syscall].monitored == 1) {
             ret = add_pid_sysc(pid, syscall);
