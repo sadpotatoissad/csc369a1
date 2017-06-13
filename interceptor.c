@@ -252,14 +252,13 @@ void (*orig_exit_group)(int);
  */
 void my_exit_group(int status)
 {
-	spin_lock(&calltable_lock); 
     spin_lock(&pidlist_lock);
     //remove given pid from all lists
     del_pid(current->pid);
+	spin_unlock(&pidlist_lock); 
     //call original exit_group
     orig_exit_group(status);
-	spin_unlock(&pidlist_lock); 
-	spin_unlock(&calltable_lock);
+
 }
 //----------------------------------------------------------------
 
