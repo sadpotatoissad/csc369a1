@@ -371,7 +371,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 		spin_unlock(&calltable_lock);   
 		return -EPERM;
     }
-    else if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
+    if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
         if ((current_uid() != 0) && ((pid == 0) || (check_pid_from_list(current->pid, pid) != 0))) {
 		spin_unlock(&pidlist_lock); 
 		spin_unlock(&calltable_lock);
