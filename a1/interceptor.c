@@ -252,9 +252,11 @@ void (*orig_exit_group)(int);
  */
 void my_exit_group(int status)
 {
+	spin_lock(&pidlist_lock); 
     //remove given pid from all lists
     del_pid(current->pid);
     //call original exit_group
+	spin_unlock(&pidlist_lock); 
     orig_exit_group(status);
 }
 //----------------------------------------------------------------
@@ -368,7 +370,7 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 		spin_unlock(&calltable_lock);   
 		return -EPERM;
     }
-    else if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
+    if ((cmd == REQUEST_START_MONITORING)||(cmd == REQUEST_STOP_MONITORING)) {
         if ((current_uid() != 0) && ((pid == 0) || (check_pid_from_list(current->pid, pid) != 0))) {
 		spin_unlock(&pidlist_lock); 
 		spin_unlock(&calltable_lock);
@@ -402,12 +404,6 @@ asmlinkage long my_syscall(int cmd, int syscall, int pid) {
 		spin_unlock(&calltable_lock);
 		return -EBUSY;
     } 
-
-    if (ret != 0){
-        spin_unlock(&pidlist_lock); //add by bin
-        spin_unlock(&calltable_lock);//add by bin
-        return ret;
-    }
 
 
     //double check syntax for function ptrs
