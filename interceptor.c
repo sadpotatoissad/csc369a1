@@ -253,9 +253,12 @@ void (*orig_exit_group)(int);
 void my_exit_group(int status)
 {
     spin_lock(&pidlist_lock);
+
     //remove given pid from all lists
     del_pid(current->pid);
+
 	spin_unlock(&pidlist_lock); 
+
     //call original exit_group
     orig_exit_group(status);
 
@@ -283,7 +286,10 @@ void my_exit_group(int status)
 asmlinkage long interceptor(struct pt_regs reg) {
     //check to see if syscall is monitored for current pid
     int cur_monitored, monitored, sys_call_num, ret;
+
     spin_lock(&calltable_lock);
+	spin_lock(&pidlist_lock);
+
     sys_call_num = reg.ax;
     cur_monitored = check_pid_monitored(sys_call_num, current->pid);
     monitored = table[sys_call_num].monitored;
@@ -293,7 +299,10 @@ asmlinkage long interceptor(struct pt_regs reg) {
     }
     //call original system call
     ret = table[sys_call_num].f(reg);
+
+	spin_unlock(&pidlist_lock); 
     spin_unlock(&calltable_lock);
+
     return ret;
 
 
